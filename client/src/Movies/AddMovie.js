@@ -1,48 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import axios from "axios"
 
 
-const UpdateMovie = props => {
+const AddMovie = props => {
   const history = useHistory();
-  const [movie, setMovie] = useState(null);
-  const params = useParams();
+  const [movie, setMovie] = useState({title:"", director:"", metascore:"", stars:[]});
 
-  const fetchMovie = (id) => {
-    axios
-      .get(`http://localhost:5000/api/movies/${id}`)
-      .then((res) => setMovie(res.data))
-      .catch((err) => console.log(err.response));
-  };
 
-  const editMovie = () => {
+  const addMovie = () => {
     axios
-      .put(`http://localhost:5000/api/movies/${movie.id}`, movie)
+      .post(`http://localhost:5000/api/movies`, movie)
       .then((res) => {
           props.refreshMovies()
           history.push("/")})
       .catch((err) => console.log(err.response));
   };
 
-  useEffect(() => {
-    fetchMovie(params.id);
-  }, [params.id]);
-
+  
   const handleChange = (e) => {
     e.persist();
     const value= e.target.name === "stars" ? e.target.value.split(", ") : e.target.value
     setMovie((previous) => ({ ...previous, [e.target.name]: value }));
   };
 
-  const handleEdit = e => {
+  const handleAdd = e => {
     e.preventDefault()
-    editMovie()
+    addMovie()
   }
 
 
   return (
     <div>
-      {movie && <form onSubmit={handleEdit}>
+       <form onSubmit={handleAdd}>
         <label htmlFor="title">
           Title:
           <input
@@ -88,10 +78,10 @@ const UpdateMovie = props => {
           />
         </label>
 
-        <button onClick={handleEdit}>Edit Movie</button>
-  </form> }
+        <button onClick={handleAdd}>Add Movie</button>
+  </form> 
     </div>
   );
 };
 
-export default UpdateMovie;
+export default AddMovie;
